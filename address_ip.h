@@ -6,3 +6,4 @@ void execution_msr(char *chaine,char *ip,int a,int b,int c,int d);
 int tableau(int *tab);
 void valide();
 void board(int *total,int *boardcast);
+void convert(int *tableau, char *chaine);

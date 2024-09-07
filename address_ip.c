@@ -14,7 +14,7 @@ void valide()
 {   
     int a=0,b=0,c=0,d=0,i;
     char chaine[100]="",chaine1[100]="";
-    printf("entrer l'adresse ip (ex : 192.168.10.50) ");
+    printf("entrer l'adresse ip (ex : 192.168.10.50) : ");
     scanf("%s",chaine);
     char *token=strtok(chaine,".");
     if(token != NULL)
@@ -91,23 +91,26 @@ void execution_msr(char *chaine,char *ip,int a1,int b1,int c1,int d1)
     //reverse anle msr
     char reverse_msr1[8]="",reverse_msr2[8]="",reverse_msr3[8]="",reverse_msr4[8]="";
     //reto pour reseau
+    char chaine_reseau1[8]="",chaine_reseau2[8]="",chaine_reseau3[8]="",chaine_reseau4[8]="";
+    char array[200]="";
     int reseau1[8],reseau2[8],reseau3[8],reseau4[8];
     //reto pour broadcast
     int board1[8],board2[8],board3[8],board4[8];
     int total[32], boardcast[32];                             //apifampitohizana anle msr bedebe
-    //separe(ip,)
+    
     separe(chaine,&a,&b,&c,&d);                                //misepare an msr
-    printf("separer : %d.%d.%d.%d\n",a,b,c,d);
+    
     decimal(a,chaine1);
     decimal(b,chaine2);
     decimal(c,chaine3);
     decimal(d,chaine4);
+    
     for(i=0 ; i<8 ; i++)                                        //eto le mapitohy teo
     {
         total[i] = chaine1[i] - '0';
         total[i+8] = chaine2[i] - '0';
-        total[i+16] = chaine3[i]- '0';
-        total[i+24] = chaine4[i]-'0';
+        total[i+16] = chaine3[i] - '0';
+        total[i+24] = chaine4[i] - '0';
     }
     condition(total,a1,b1,c1,d1,chaine11,chaine22,chaine33,chaine44);
     for(i=0 ; i<8 ; i++)
@@ -117,12 +120,20 @@ void execution_msr(char *chaine,char *ip,int a1,int b1,int c1,int d1)
         reseau3[i] = (chaine3[i] -'0' ) * (chaine33[i] - '0');
         reseau4[i] = (chaine4[i] -'0' ) * (chaine44[i] - '0');
     }
-    e=tableau(reseau1);
-    f=tableau(reseau2);
-    g=tableau(reseau3);
-    f=tableau(reseau4);
-    printf("\n\tadresse reseau : %d.%d.%d.%d\n",e,f,g,h);
+    printf("\n\tadresse reseau : %d.%d.%d.%d\n",tableau(reseau1),tableau(reseau2),tableau(reseau3),tableau(reseau4));
+   
     board(total,boardcast);
+
+    convert(reseau1,array);
+    convert(reseau2,array);
+    convert(reseau3,array);
+    convert(reseau4,array);
+
+    strncpy(chaine_reseau1,array,8);
+    strncpy(chaine_reseau2,array+8,8);
+    strncpy(chaine_reseau3,array+16,8);
+    strncpy(chaine_reseau4,array+24,8);
+
     for(i = 0; i < 8; i++)
     {
         reverse_msr1[i] = '0' + boardcast[i];
@@ -132,12 +143,11 @@ void execution_msr(char *chaine,char *ip,int a1,int b1,int c1,int d1)
     }
     for(i = 0 ; i < 8 ; i++)
     {
-        board1[i] = (reverse_msr1[i] - '0') | (chaine11[i] - '0');
-        board2[i] = (reverse_msr2[i] - '0') | (chaine22[i] - '0');
-        board3[i] = (reverse_msr3[i] - '0') | (chaine33[i] - '0');
-        board4[i] = (reverse_msr4[i] - '0') | (chaine44[i] - '0');
-    } 
-    printf("\t--------------------------------------\n");    
+        board1[i] = (reverse_msr1[i] - '0') | (chaine_reseau1[i] - '0');
+        board2[i] = (reverse_msr2[i] - '0') | (chaine_reseau2[i] - '0');
+        board3[i] = (reverse_msr3[i] - '0') | (chaine_reseau3[i] - '0');
+        board4[i] = (reverse_msr4[i] - '0') | (chaine_reseau4[i] - '0');
+    }    
     printf("\tadresse broadcast : %d.%d.%d.%d\n",tableau(board1),tableau(board2),tableau(board3),tableau(board4));
 }
 
@@ -174,9 +184,9 @@ void condition(int *total,int a,int b,int c,int d,char *chaine1,char *chaine2,ch
         {
             if(total[i]==1){
                 compteur++;
-            }
-            else
                 break;
+            }
+                
         }
         for(i=compteur+1 ; i<32 ; i++)
         {
@@ -192,14 +202,17 @@ void condition(int *total,int a,int b,int c,int d,char *chaine1,char *chaine2,ch
             printf("\n==> msr invalide\n");
             exit(1);
         }
-        else
+        else        
+        {
             printf("\n==> msr valide\n");
             decimal(a,chaine1);
             decimal(b,chaine2);
             decimal(c,chaine3);
             decimal(d,chaine4);
+        }
     }
 }
+
 void board(int *total,int *boardcast)
 {
     int i;
@@ -209,5 +222,16 @@ void board(int *total,int *boardcast)
             boardcast[i] = 1;
         else if(total[i] == 1)
             boardcast[i] = 0;  
+    }
+}
+
+void convert(int *tableau, char *chaine) 
+{
+    char temp[10];
+    int i;
+    for(i=0 ; i<8 ; i++)
+    {
+        sprintf(temp,"%d",tableau[i]);
+        strcat(chaine,temp);
     }
 }
